@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <a class="btn btn-primary" href="{{ path('users', {'year': from.format('Y'), 'month': from.format('m')})}}">
+        Вернуться к списку пользователей</a>
+    <h2>Отчет по часам за {{ from|localizeddate("medium", "none", null, null, "LLLL")}}.</h2>
+    <h3>Пользователь: {{ user.username }}</h3>
+    <table class="table table-striped">
+        <tr>
+            <th>День</th>
+            <th>Часы</th>
+            <th>Комментарий</th>
+            <th></th>
+        </tr>
+
+        {% for report in reports %}
+            <tr>
+                <td>{{ report.date.format('d') }}</td>
+                <td>{{ report.hours }}</td>
+                <td>{{ report.comment }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{{ path('admin_report',
+                        {'id': user.id,'year': from.format('Y'), 'month': from.format('m')}) }}">
+                        Изменить
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

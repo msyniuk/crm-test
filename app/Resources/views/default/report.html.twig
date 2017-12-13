@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+            Выберите месяц: {{ from|localizeddate("medium", "none", null, null, "LLLL") }}
+        </button>
+        <ul class="dropdown-menu">
+            {% for m in months %}
+                <li>
+                    <a href="{{ path('report', {'year': m.format('Y'), 'month': m.format('m')}) }}">
+                        {{ m|localizeddate("medium", "none", null, null, "LLLL") }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <h2>Отчет по часам {{ year }} - {{ month }}</h2>
+
+    {{ form_start(editForm, {
+        'action': path('report_save', {'year': year, 'month': month, 'id': '--id--'}),
+        'attr': {
+            'id': 'editForm',
+            'data-action': path('report_save', {'year': year, 'month': month, 'id': '--id--'})
+        }
+    }) }}
+        {% include 'default/report_table.html.twig' with {'reports': reports} %}
+
+        <script id="edit-form-template" type="text/x-handlebars-template">
+            <tr>
+                <td>{{ form_widget(editForm.day, {'attr': {'data-field': 'day'}}) }}</td>
+                <td>{{ form_widget(editForm.hours, {'attr': {'data-field': 'hours'}}) }}</td>
+                <td>{{ form_widget(editForm.comment, {'attr': {'data-field': 'comment'}}) }}</td>
+                <td>
+                    <button type="button" class="btn btn-success js-save-btn">Сохранить</button>
+                    <button type="button" class="btn btn-danger js-cancel-btn">Отмена</button>
+                </td>
+            </tr>
+        </script>
+    {{ form_end(editForm) }}
+
+    <h3>Добавление новой записи</h3>
+    {{ form_start(addForm, {
+        'action': path('report_save', {'year': year, 'month': month}),
+        'attr': {
+            'id': 'addForm',
+            'autocomplete': 'off'
+        }
+    }) }}
+    <table class="table table-striped">
+        <tr>
+            <th>День</th>
+            <th>Часы</th>
+            <th>Комментарий</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>{{ form_widget(addForm.day, {'attr': {'data-field': 'day'}}) }}</td>
+            <td>{{ form_widget(addForm.hours, {'attr': {'data-field': 'hours'}}) }}</td>
+            <td>{{ form_widget(addForm.comment, {'attr': {'data-field': 'comment'}}) }}</td>
+            <td>
+                <button class="btn btn-success js-add-btn">Добавить</button>
+            </td>
+        </tr>
+    </table>
+    {{ form_end(addForm) }}
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        jQuery(function($) {
+            $('body')
+                .on('click', '.js-edit-btn', edit)
+                .on('click', '.js-save-btn', save)
+                .on('click', '.js-cancel-btn', cancel);
+
+            $('#addForm').on('submit', add);
+
+            var currentEditingId = null;
+            var editTemplate = Handlebars.compile($('#edit-form-template').html());
+            var $editRow;
+            var $currentRow;
+            var $form = $('#editForm');
+
+            function edit(event) {
+                var action;
+
+                $currentRow = $(event.target).closest('tr');
+                action = $form.data('action').replace('--id--', $currentRow.data('id'));
+                $editRow = $(editTemplate());
+
+                $form.attr('action', action);
+                $form.find('.js-edit-btn').hide();
+                $currentRow.hide();
+                $editRow.find('[data-field=day]').val($currentRow.find('[data-field=day]').html());
+                $editRow.find('[data-field=hours]').val($currentRow.find('[data-field=hours]').html());
+                $editRow.find('[data-field=comment]').val($currentRow.find('[data-field=comment]').html());
+                $editRow.insertAfter($currentRow);
+            }
+
+            function cancel() {
+                $editRow.remove();
+                $currentRow.show();
+                $form.find('.js-edit-btn').show();
+            }
+
+            function save(event) {
+                $.post($form.attr('action'), $form.serialize(), function(result) {
+                    if (result.success) {
+                        $editRow.remove();
+                        $('#reportTable').replaceWith(result.data);
+                    }
+                })
+            }
+
+            function add(event) {
+                var $form = $(event.target);
+
+                event.preventDefault();
+
+                $.post($form.attr('action'), $form.serialize(), function(result) {
+                    if (result.success) {
+                        $('#reportTable').replaceWith(result.data);
+                        $form.get(0).reset();
+                    }
+                })
+            }
+        });
+    </script>
+{% endblock %}
