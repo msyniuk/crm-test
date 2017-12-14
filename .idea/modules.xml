@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/crm-test.iml" filepath="$PROJECT_DIR$/.idea/crm-test.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../silex/.idea/silex.iml" filepath="$PROJECT_DIR$/../silex/.idea/silex.iml" />
     </modules>
   </component>
 </project>

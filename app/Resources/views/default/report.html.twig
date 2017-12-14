@@ -15,7 +15,7 @@
             {% endfor %}
         </ul>
     </div>
-    <h2>Отчет по часам {{ year }} - {{ month }}</h2>
+    <h2>Отчет по часам за {{ from|localizeddate("medium", "none", null, null, "LLLL") }}, {{ year }}</h2>
 
     {{ form_start(editForm, {
         'action': path('report_save', {'year': year, 'month': month, 'id': '--id--'}),

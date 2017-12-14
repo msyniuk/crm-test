@@ -1,0 +1,19 @@
+<table id="reportTable" class="table table-striped">
+    <tr>
+        <th>День</th>
+        <th>Часы</th>
+        <th>Комментарий</th>
+        <th></th>
+    </tr>
+
+    {% for report in reports %}
+        <tr data-id="{{ report.id    }}">
+            <td data-field="day">{{ report.day }}</td>
+            <td data-field="hours">{{ report.hours }}</td>
+            <td data-field="comment">{{ report.comment }}</td>
+            <td>
+                <button type="button" class="btn btn-primary js-edit-btn">Изменить</button>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
